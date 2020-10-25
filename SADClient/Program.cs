@@ -1,36 +1,36 @@
 ﻿using RestSharp;
 using System;
+using System.Collections.Generic;
 
 namespace SADClient
 {
     class Program
     {
-        static void Main(string[] args) {
+        static void Main(string[] args)
+        {
 
-            var bookAppender = new BookAppenderClient("http://localhost:3010/api");
-            var bookRemover = new BookRemoverClient("http://localhost:3010/api");
+            // Register our RestClients
+            Dictionary<Type, Auth0RestClient> restClients = new Dictionary<Type, Auth0RestClient> {
+                { typeof(BookAppenderClient),  new BookAppenderClient("http://localhost:3010/api")},
+                { typeof(BookRemoverClient),  new BookRemoverClient("http://localhost:3010/api") }
+            };
 
-            var response = bookAppender.Execute(new RestRequest("/claims"));
-            Console.WriteLine($"bookAppender claims: {response.StatusCode} / {response.Content}");
+            // Check available RestClients
+            foreach (var type in restClients.Keys)
+            {
+                var response = restClients[type].Execute(new RestRequest("/claims"));
+                Console.WriteLine($"{type} claims: {response.StatusCode} / {response.Content}");
 
-            response = bookAppender.Execute(new RestRequest("/add"));
-            Console.WriteLine($"bookAppender emty add: {response.StatusCode} / {response.Content}");
+                response = restClients[type].Execute(new RestRequest("/add"));
+                Console.WriteLine($"{type} emty add: {response.StatusCode} / {response.Content}");
 
-            response = bookAppender.Execute(new RestRequest("/deleteByAuthor"));
-            Console.WriteLine($"bookAppender emty delete: {response.StatusCode} / {response.Content}");
+                response = restClients[type].Execute(new RestRequest("/deleteByAuthor"));
+                Console.WriteLine($"{type} emty delete: {response.StatusCode} / {response.Content}");
 
-            Console.WriteLine();
+                Console.WriteLine();
 
-            response = bookRemover.Execute(new RestRequest("/claims"));
-            Console.WriteLine($"bookRemover claims: {response.StatusCode} / {response.Content}");
+            }
 
-            response = bookRemover.Execute(new RestRequest("/add"));
-            Console.WriteLine($"bookRemover check add: {response.StatusCode} / {response.Content}");
-
-            response = bookRemover.Execute(new RestRequest("/deleteByAuthor"));
-            Console.WriteLine($"bookRemover check delete: {response.StatusCode} / {response.Content}");
-
-            Console.WriteLine();
 
             Console.WriteLine("Let start to work");
             do
@@ -49,22 +49,22 @@ namespace SADClient
                 // Fill both values? add the book
                 if (!string.IsNullOrEmpty(title))
                 {
-                    executor = bookAppender;
+                    executor = restClients[typeof(BookAppenderClient)];
                     request = new RestRequest($"/add?author={author}&title={title}", Method.GET);
                 }
                 // otherwise remove all books of this author
-                else 
+                else
                 {
-                    executor = bookRemover;
+                    executor = restClients[typeof(BookRemoverClient)]; ;
                     request = new RestRequest($"/deleteByAuthor?author={author}", Method.GET);
                 }
 
-                response = executor.Execute(request);
+                var response = executor.Execute(request);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                    Console.WriteLine(response.Content);
-                else 
-                    Console.WriteLine($"ERROR: {response.StatusCode}");
+                    Console.WriteLine($"{executor.GetType()}: {response.Content}");
+                else
+                    Console.WriteLine($"{executor.GetType()} ERROR: {response.StatusCode}");
 
             } while (true);
         }
