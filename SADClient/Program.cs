@@ -32,7 +32,7 @@ namespace SADClient
             }
 
 
-            Console.WriteLine("Let start to work");
+            Console.WriteLine("Let's start to work");
             do
             {
                 Console.Write("Author: ");
