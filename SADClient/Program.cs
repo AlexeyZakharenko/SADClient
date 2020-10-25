@@ -22,10 +22,10 @@ namespace SADClient
                 Console.WriteLine($"{type} claims: {response.StatusCode} / {response.Content}");
 
                 response = restClients[type].Execute(new RestRequest("/add"));
-                Console.WriteLine($"{type} emty add: {response.StatusCode} / {response.Content}");
+                Console.WriteLine($"{type} add (w/o parameters): {response.StatusCode} / {response.Content}");
 
                 response = restClients[type].Execute(new RestRequest("/deleteByAuthor"));
-                Console.WriteLine($"{type} emty delete: {response.StatusCode} / {response.Content}");
+                Console.WriteLine($"{type} delete (w/o parameters): {response.StatusCode} / {response.Content}");
 
                 Console.WriteLine();
 

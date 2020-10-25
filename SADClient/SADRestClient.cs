@@ -31,7 +31,7 @@ namespace SADClient
         protected virtual string _client_id { get; }
         protected virtual string _client_secret { get; }
 
-        public string Token
+        protected string Token
         {
             get
             {
